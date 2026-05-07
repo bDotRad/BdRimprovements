@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"C:\\\\Users\\\\mailb\\\\OneDrive\\\\dev\\\\BdRimprovements\\\\src\\\\lib\" \"C:\\\\Users\\\\mailb\\\\OneDrive\\\\dev\\\\BdRimprovements\\\\src\\\\constants\" \"C:\\\\Users\\\\mailb\\\\OneDrive\\\\dev\\\\BdRimprovements\\\\src\\\\hooks\" \"C:\\\\Users\\\\mailb\\\\OneDrive\\\\dev\\\\BdRimprovements\\\\src\\\\components\" \"C:\\\\Users\\\\mailb\\\\OneDrive\\\\dev\\\\BdRimprovements\\\\src\\\\pages\\\\Problems\" \"C:\\\\Users\\\\mailb\\\\OneDrive\\\\dev\\\\BdRimprovements\\\\src\\\\pages\\\\Solutions\" \"C:\\\\Users\\\\mailb\\\\OneDrive\\\\dev\\\\BdRimprovements\\\\supabase\" 2>&1)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\mailb\\OneDrive\\dev\\BdRimprovements\\src"
+    ]
+  }
+}
