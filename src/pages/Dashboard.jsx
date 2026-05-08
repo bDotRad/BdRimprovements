@@ -20,9 +20,9 @@ export default function Dashboard() {
   })
 
   const total = statusData.length
-  const open = statusData.filter(p => !['P19', 'P50'].includes(p.currentStatus?.phase_code)).length
+  const open = statusData.filter(p => !['P29', 'P50'].includes(p.currentStatus?.phase_code)).length
   const closed = statusData.filter(p => p.currentStatus?.phase_code === 'P50').length
-  const cancelled = statusData.filter(p => p.currentStatus?.phase_code === 'P19').length
+  const cancelled = statusData.filter(p => p.currentStatus?.phase_code === 'P29').length
 
   const byCodes = {}
   statusData.forEach(p => {

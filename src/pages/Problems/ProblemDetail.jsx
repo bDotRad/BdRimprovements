@@ -479,7 +479,7 @@ export default function ProblemDetail() {
                 )}
               </div>
 
-              {currentPhase !== 'P30' && !['P40', 'P50', 'P19'].includes(currentPhase) && (
+              {currentPhase !== 'P30' && !['P40', 'P50', 'P29'].includes(currentPhase) && (
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-700">
                   Problem must be in P30 (Develop Solutions) phase to add solutions.
                 </div>
@@ -728,7 +728,7 @@ export default function ProblemDetail() {
                     onClick={() => handleTransition(t.to)}
                     disabled={transitioning}
                     className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50
-                      ${t.to === 'P19' || t.to === 'S59'
+                      ${t.to === 'P29' || t.to === 'S59'
                         ? 'bg-red-100 text-red-700 hover:bg-red-200 border border-red-300'
                         : isGated
                         ? 'bg-amber-100 text-amber-700 hover:bg-amber-200 border border-amber-300'
