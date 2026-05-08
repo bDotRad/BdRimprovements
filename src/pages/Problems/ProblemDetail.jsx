@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ChevronLeft, Edit, Plus, FileText, ExternalLink,
@@ -23,7 +23,11 @@ export default function ProblemDetail() {
   const qc = useQueryClient()
   const { logChange } = useAudit()
 
-  const [activeTab, setActiveTab] = useState('Overview')
+  const [searchParams] = useSearchParams()
+  const [activeTab, setActiveTab] = useState(() => {
+    const tab = searchParams.get('tab')
+    return TABS.includes(tab) ? tab : 'Overview'
+  })
   const [transitioning, setTransitioning] = useState(false)
   const [transitionComment, setTransitionComment] = useState('')
   const [selectedApprover, setSelectedApprover] = useState('')
@@ -332,75 +336,6 @@ export default function ProblemDetail() {
         <WorkflowStepper currentCode={currentPhase} type="problem" />
       </div>
 
-      {/* Workflow advance panel */}
-      {!isTerminal && transitions.length > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-blue-800 mb-3 flex items-center gap-2">
-            <ArrowRight className="h-4 w-4" /> Advance Workflow
-          </h3>
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-medium text-blue-700 mb-1">Comment (optional)</label>
-              <textarea
-                value={transitionComment}
-                onChange={e => setTransitionComment(e.target.value)}
-                rows={2}
-                placeholder="Add a comment for this status change..."
-                className="w-full border border-blue-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              />
-            </div>
-            {transitions.some(t => t.requiresApprover) && (
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  Approver (required for gated transitions)
-                </label>
-                <select
-                  value={selectedApprover}
-                  onChange={e => setSelectedApprover(e.target.value)}
-                  className="w-full border border-blue-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                >
-                  <option value="">— Select approver —</option>
-                  {approvers.map(a => (
-                    <option key={a.id} value={a.id}>{a.first} {a.last}</option>
-                  ))}
-                </select>
-              </div>
-            )}
-            <div className="flex flex-wrap gap-2">
-              {transitions.map(t => {
-                const isGated = t.requiresApprover
-                return (
-                  <button
-                    key={t.to}
-                    onClick={() => handleTransition(t.to)}
-                    disabled={transitioning}
-                    className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50
-                      ${t.to.startsWith('P19') || t.to.startsWith('S59')
-                        ? 'bg-red-100 text-red-700 hover:bg-red-200 border border-red-300'
-                        : isGated
-                        ? 'bg-amber-100 text-amber-700 hover:bg-amber-200 border border-amber-300'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
-                      }`}
-                  >
-                    {isGated && <AlertTriangle className="h-3.5 w-3.5" />}
-                    {t.label} ({t.to})
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isTerminal && (
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex items-center gap-3">
-          <CheckCircle className="h-5 w-5 text-gray-400 flex-shrink-0" />
-          <p className="text-sm text-gray-500">
-            This problem is in a terminal state ({currentPhase}) and cannot be advanced further.
-          </p>
-        </div>
-      )}
-
       {/* Tabs */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="border-b border-gray-200">
@@ -438,11 +373,12 @@ export default function ProblemDetail() {
                 {[
                   { label: 'Problem Code', value: problem.prob_code },
                   { label: 'Problem Type', value: problem.prob_type || '—' },
+                  { label: 'Problem Source', value: problem.prob_source || '—' },
+                  { label: 'Raised By', value: problem.raised_by_name || '—' },
                   { label: 'Location', value: problem.lu30_location?.loc_name || '—' },
                   { label: 'Sub-location', value: problem.lu31_sub_location?.subloc_name || '—' },
                   { label: 'Equipment', value: problem.lu40_equipment?.name || '—' },
                   { label: 'Created', value: new Date(problem.created_at).toLocaleString() },
-                  { label: 'Last Updated', value: new Date(problem.updated_at).toLocaleString() },
                   { label: 'Current Status', value: `${currentPhase} — ${problem.currentStatus?.phase_name || ''}` },
                 ].map(({ label, value }) => (
                   <div key={label} className="bg-gray-50 rounded-lg p-3">
@@ -722,6 +658,75 @@ export default function ProblemDetail() {
           )}
         </div>
       </div>
+
+      {/* Advance Workflow — bottom of page */}
+      {!isTerminal && transitions.length > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
+          <h3 className="text-sm font-semibold text-blue-800 mb-3 flex items-center gap-2">
+            <ArrowRight className="h-4 w-4" /> Advance Workflow
+          </h3>
+          <div className="space-y-3">
+            <div>
+              <label className="block text-xs font-medium text-blue-700 mb-1">Comment (optional)</label>
+              <textarea
+                value={transitionComment}
+                onChange={e => setTransitionComment(e.target.value)}
+                rows={2}
+                placeholder="Add a comment for this status change..."
+                className="w-full border border-blue-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              />
+            </div>
+            {transitions.some(t => t.requiresApprover) && (
+              <div>
+                <label className="block text-xs font-medium text-blue-700 mb-1">
+                  Approver (required for gated transitions)
+                </label>
+                <select
+                  value={selectedApprover}
+                  onChange={e => setSelectedApprover(e.target.value)}
+                  className="w-full border border-blue-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                >
+                  <option value="">— Select approver —</option>
+                  {approvers.map(a => (
+                    <option key={a.id} value={a.id}>{a.first} {a.last}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <div className="flex flex-wrap gap-2">
+              {transitions.map(t => {
+                const isGated = t.requiresApprover
+                return (
+                  <button
+                    key={t.to}
+                    onClick={() => handleTransition(t.to)}
+                    disabled={transitioning}
+                    className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50
+                      ${t.to === 'P19' || t.to === 'S59'
+                        ? 'bg-red-100 text-red-700 hover:bg-red-200 border border-red-300'
+                        : isGated
+                        ? 'bg-amber-100 text-amber-700 hover:bg-amber-200 border border-amber-300'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}
+                  >
+                    {isGated && <AlertTriangle className="h-3.5 w-3.5" />}
+                    {t.label} ({t.to})
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isTerminal && (
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex items-center gap-3">
+          <CheckCircle className="h-5 w-5 text-gray-400 flex-shrink-0" />
+          <p className="text-sm text-gray-500">
+            This problem is in a terminal state ({currentPhase}) and no further transitions are available.
+          </p>
+        </div>
+      )}
     </div>
   )
 }
