@@ -1,7 +1,8 @@
 export const PROBLEM_PHASES = {
   P00: { code: 'P00', name: 'Data Entry',                  color: 'gray',   bg: 'bg-gray-100',   text: 'text-gray-700',   border: 'border-gray-300'   },
   P10: { code: 'P10', name: 'Assess Problem',              color: 'blue',   bg: 'bg-blue-100',   text: 'text-blue-700',   border: 'border-blue-300'   },
-  P20: { code: 'P20', name: 'Confirm Problem',             color: 'indigo', bg: 'bg-indigo-100', text: 'text-indigo-700', border: 'border-indigo-300' },
+  P15: { code: 'P15', name: 'Confirm Problem',             color: 'cyan',   bg: 'bg-cyan-100',   text: 'text-cyan-700',   border: 'border-cyan-300'   },
+  P20: { code: 'P20', name: 'Problem Assessed',            color: 'indigo', bg: 'bg-indigo-100', text: 'text-indigo-700', border: 'border-indigo-300' },
   P25: { code: 'P25', name: 'Solution Dev On Hold',        color: 'yellow', bg: 'bg-yellow-100', text: 'text-yellow-700', border: 'border-yellow-300' },
   P29: { code: 'P29', name: 'Problem Cancelled',           color: 'red',    bg: 'bg-red-100',    text: 'text-red-700',    border: 'border-red-300'    },
   P30: { code: 'P30', name: 'Develop & Execute Solutions', color: 'purple', bg: 'bg-purple-100', text: 'text-purple-700', border: 'border-purple-300' },
@@ -21,36 +22,33 @@ export const SOLUTION_PHASES = {
   S70: { code: 'S70', name: 'Complete',   color: 'green',  bg: 'bg-green-100',  text: 'text-green-700',  border: 'border-green-300'   },
 }
 
-// Problem transitions — updated per revised flow diagram
-// Key changes:
-//   P15 → P25 (Solution Dev On Hold), P19 → P29 (Cancelled)
-//   Approval gate between P20 and P30 removed — direct path
-//   P20 (test/trial) can loop back to P10 if trial fails
 export const PROBLEM_TRANSITIONS = {
   P00: [
     { to: 'P10', label: 'Submit for Assessment' },
   ],
   P10: [
-    { to: 'P20', label: 'Confirm Problem (begin trial)' },
+    { to: 'P15', label: 'Confirm Problem (trial/test)' },
+    { to: 'P20', label: 'Problem Assessed' },
+  ],
+  P15: [
+    { to: 'P10', label: 'Back to Assessment (trial failed)' },
+  ],
+  P20: [
+    { to: 'P30', label: 'Develop Solutions' },
     { to: 'P25', label: 'Put Solution Dev on Hold' },
     { to: 'P29', label: 'Cancel Problem' },
   ],
-  P20: [
-    { to: 'P30', label: 'Approve — Develop Solutions' },
-    { to: 'P10', label: 'Back to Assessment (trial failed)' },
-    { to: 'P29', label: 'Cancel Problem' },
-  ],
   P25: [
-    { to: 'P10', label: 'Resume Assessment' },
+    { to: 'P20', label: 'Resume' },
     { to: 'P29', label: 'Cancel Problem' },
   ],
-  P30: [],  // transitions driven by solution completion
+  P29: [],
+  P30: [],  // driven by solution completion → auto-triggers P40
   P40: [
     { to: 'P50', label: 'Close Problem (Resolved)' },
     { to: 'P10', label: 'Re-assess (Unresolved)' },
   ],
   P50: [],
-  P29: [],
 }
 
 export const SOLUTION_TRANSITIONS = {
@@ -80,8 +78,8 @@ export const INACTIVE_SOLUTION_PHASES = ['S70', 'S59', 'S25']
 export const PROB_TYPES = ['Incident', 'Hazard', 'Risk', 'Delay', 'EWR', 'Idea']
 
 export const REVIEW_MILESTONES = {
-  P10: { weeks: 1,  label: '1 Week'   },
-  P25: { weeks: 12, label: '12 Weeks' },
+  P15: { weeks: 1,  label: '1 Week'   },  // Confirm Problem (trial) — review after 1 week
+  P25: { weeks: 12, label: '12 Weeks' },  // Solution Dev On Hold — review after 12 weeks
   S20: { weeks: 1,  label: '1 Week'   },
   S40: { weeks: 4,  label: '1 Month'  },
   S50: { weeks: 1,  label: '1 Week'   },

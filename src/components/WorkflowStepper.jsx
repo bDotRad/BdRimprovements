@@ -1,7 +1,7 @@
 import { Check, Pause, X } from 'lucide-react'
 import { PROBLEM_PHASES, SOLUTION_PHASES } from '../constants/workflow'
 
-const PROBLEM_MAIN_FLOW = ['P00', 'P10', 'P20', 'P30', 'P40', 'P50']
+const PROBLEM_MAIN_FLOW = ['P00', 'P10', 'P15', 'P20', 'P30', 'P40', 'P50']
 const SOLUTION_MAIN_FLOW = ['S10', 'S20', 'S30', 'S40', 'S50', 'S60', 'S70']
 
 // Off-flow branch phases shown as status pills rather than stepper nodes
