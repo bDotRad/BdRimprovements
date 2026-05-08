@@ -98,6 +98,16 @@ export default function ProblemDetail() {
     enabled: !!id,
   })
 
+  // Problem sources
+  const { data: problemSources = [] } = useQuery({
+    queryKey: ['problem-sources', id],
+    queryFn: async () => {
+      const { data } = await supabase.from('t_problem_sources').select('*').eq('t00_problems_id', id).order('created_at')
+      return data || []
+    },
+    enabled: !!id,
+  })
+
   // Risk details
   const { data: riskDetails = [] } = useQuery({
     queryKey: ['problem-risk', id],
@@ -387,6 +397,22 @@ export default function ProblemDetail() {
                   </div>
                 ))}
               </div>
+
+              {/* Problem Sources */}
+              {problemSources.length > 0 && (
+                <div>
+                  <p className="text-sm font-semibold text-gray-700 mb-2">Problem Sources</p>
+                  <div className="space-y-2">
+                    {problemSources.map(s => (
+                      <div key={s.id} className="flex flex-wrap items-start gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2 py-0.5 rounded border border-blue-200">{s.source_type}</span>
+                        {s.source_ref && <span className="text-xs text-gray-600 bg-white border border-gray-200 px-2 py-0.5 rounded font-mono">{s.source_ref}</span>}
+                        {s.description && <span className="text-xs text-gray-500 mt-0.5 w-full">{s.description}</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {problem.one_drive_link && (
                 <div>
